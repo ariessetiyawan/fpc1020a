@@ -18,3 +18,4 @@
 * https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/1020A_datasheet_cn.pdf
 * https://github.com/m5stack/M5-FPC1020A
 * https://www.shenzhen2u.com/doc/Module/Fingerprint/710-FPC1020_PB3_Product-Specification.pdf
+* https://github.com/uruauth/fpc1020-esp
