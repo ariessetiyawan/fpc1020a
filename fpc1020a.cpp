@@ -214,6 +214,32 @@ uint16_t FPC1020A::getUserCount(void) {
     }
 }
 
+
+uint16_t FPC1020A::getHardwareID(time_t timeout){
+    uint16_t res;
+
+    TxBuf[CMD] = CMD_HWDID;
+    TxBuf[P1]  = 0;
+    TxBuf[P2]  = 0;
+    TxBuf[P3]  = 0;
+
+    res = sendCMD(timeout);
+
+    if (res == ACK_SUCCESS) {
+        if (RxBuf[Q3] == ACK_NOUSER) {
+            return ACK_NOUSER;
+        }
+        if (RxBuf[Q3] == ACK_TIMEOUT) {
+            return ACK_TIMEOUT;
+        }
+       Serial.print("RxBuf[Q1]: ");
+       Serial.println(RxBuf[Q1]); 
+       return RxBuf[Q2];
+    }
+    return res;
+
+}
+
 /*! @brief Initialize the EXTIO2.*/
 bool FPC1020A::delAllFinger(void) {
     uint8_t res;
@@ -242,7 +268,12 @@ bool FPC1020A::delFinger(uint8_t id) {
     TxBuf[P3]  = 0;
 
     res = sendCMD(1200);
-
+    Serial.print("res : ");
+    Serial.println(res);
+    Serial.print("RxBuf[Q2]: ");
+    Serial.println(RxBuf[Q2]);
+    Serial.print("RxBuf[Q3]: ");
+    Serial.println(RxBuf[Q3]);
     if (res == ACK_SUCCESS && RxBuf[Q3] == ACK_SUCCESS) {
         return true;
     } else {
@@ -273,7 +304,7 @@ bool FPC1020A::addFinger(uint8_t id, uint8_t permission,
     return false;
 }
 
-/*! @brief Compare fingerprint information.*/
+
 uint8_t FPC1020A::available(time_t timeout) {
     uint8_t res;
 
@@ -307,4 +338,75 @@ uint8_t FPC1020A::getFingerID(void) {
 /*! @brief Get the user's Permission.*/
 uint8_t FPC1020A::getFingerPermission(void) {
     return RxBuf[Q3];
+}
+
+bool FPC1020A::detectFinger(time_t timeout) {
+    uint8_t res;
+
+    TxBuf[CMD] = CMD_GETIMG;
+    TxBuf[P1]  = 0;
+    TxBuf[P2]  = 0;
+    TxBuf[P3]  = 0;
+
+    res = sendCMD(timeout);
+    
+    if (res == ACK_SUCCESS) {
+        if (RxBuf[Q3] == ACK_TIMEOUT) {
+            return ACK_TIMEOUT;
+        }
+        if (RxBuf[Q3] == ACK_FAIL) {
+            return ACK_FAIL;
+        }
+        Serial.print("RxBuf[Q2]: ");
+        Serial.println(RxBuf[Q2]);
+        Serial.print("RxBuf[Q3]: ");
+        Serial.println(RxBuf[Q3]);
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
+bool FPC1020A::GetcompareLevel(void)
+{
+  uint8_t res;
+
+    TxBuf[CMD] = CMD_COM_LEV;
+    TxBuf[P1]  = 0;
+    TxBuf[P2]  = 0;
+    TxBuf[P3]  = 0;
+  
+  res = sendCMD(1200);
+  
+  if (res == ACK_SUCCESS && RxBuf[Q3] == ACK_SUCCESS) {
+      return RxBuf[Q3];
+  }
+  else {
+    return 0xFF;
+  }
+  return res;
+}
+
+uint8_t FPC1020A::SetcompareLevel(uint8_t temp)
+{
+  uint8_t res;
+  
+    TxBuf[CMD] = CMD_COM_LEV;
+    TxBuf[P1]  = 0;
+    TxBuf[P2]  = temp;
+    TxBuf[P3]  = 0;
+  
+  res = sendCMD(1200);
+  
+  if (res == ACK_SUCCESS && RxBuf[Q3] == ACK_SUCCESS) {
+        Serial.print("RxBuf[Q2]: ");
+        Serial.println(RxBuf[Q2]);
+        Serial.print("RxBuf[Q3]: ");
+        Serial.println(RxBuf[Q3]);
+        return RxBuf[Q3];
+    } else {
+        return 0xFF;
+    }
+
 }

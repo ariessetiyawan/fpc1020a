@@ -23,7 +23,7 @@
 #define ACK_NORMAL_USER 0x02
 #define ACK_MASTER_USER 0x03
 
-#define USER_MAX_CNT 50
+#define USER_MAX_CNT  1000 // Maximum fingerprint number
 
 #define HEAD 0
 #define CMD  1
@@ -37,22 +37,30 @@
 #define Q2 3
 #define Q3 4
 
-#define CMD_HEAD     0xF5
-#define CMD_TAIL     0xF5
-#define CMD_ADD_1    0x01
-#define CMD_ADD_2    0x02
-#define CMD_ADD_3    0x03
-#define CMD_MATCH    0x0C
-#define CMD_DEL      0x04
-#define CMD_DEL_ALL  0x05
-#define CMD_USER_CNT 0x09
-
-#define CMD_BAUD 0x21
-
+#define CMD_HEAD      0xF5
+#define CMD_TAIL      0xF5
+#define CMD_ADD_1     0x01
+#define CMD_ADD_2     0x02
+#define CMD_ADD_3     0x03
+#define CMD_MATCH     0x0C
+#define CMD_DEL       0x04
+#define CMD_DEL_ALL   0x05
+#define CMD_USER_CNT  0x09
+#define CMD_COM_LEV   0x28
+#define CMD_LP_MODE   0x2C
+#define CMD_TIMEOUT   0x2E
+#define CMD_BAUD      0x21
 #define CMD_SLEEP_MODE 0x2C
 #define CMD_ADD_MODE   0x2D
-
 #define CMD_FINGER_DETECTED 0x14
+#define CMD_GETIMG1    0x23
+#define CMD_GETIMG   0x24
+#define CMD_HWDID    0xFC
+
+#define FINGER_WAKE 26
+#define FINGER_RST  5
+#define FINGER_RX   17
+#define FINGER_TX   16
 
 typedef enum {
     FINGER_NOT_REPEAT,
@@ -82,21 +90,22 @@ class FPC1020A {
     bool enableDebug(HardwareSerial *debug_serial);
     uint8_t sendCMD(uint16_t timeout);
     bool sleep(void);
-
+    //void getImage(time_t timeout = 500);
     bool setFingerMode(fpc1020a_add_finger_mode_t mode = FINGER_NOT_REPEAT);
     uint8_t getFingerMode();
 
+    uint16_t getHardwareID(time_t timeout = 500);
     uint16_t getUserCount(void);
     bool addFinger(uint8_t id, uint8_t permission, uint8_t adding_count);
     bool delFinger(uint8_t id);
     bool delAllFinger();
-
     uint8_t available(time_t timeout = 500);
     uint8_t getFingerID(void);
     uint8_t getFingerPermission(void);
-
+    bool detectFinger(time_t timeout = 500);
     bool setBaud(unsigned long baud = 19200);
-
+    bool GetcompareLevel(void);
+    uint8_t SetcompareLevel(uint8_t temp);
    public:
     uint8_t TxBuf[9];
     uint8_t RxBuf[9];
